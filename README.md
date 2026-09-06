@@ -73,7 +73,3 @@ ecuaciones-separables/
 │   └── casos_prueba.py # Casos precargados
 └── output/             # Gráficas exportadas
 ```
-
-## Nota sobre inteligencia artificial
-
-Si utilizaste herramientas de IA en el desarrollo de este proyecto, debes declararlo en el informe académico según lo indicado en la guía de la actividad.
