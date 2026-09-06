@@ -52,7 +52,7 @@ Las gráficas se guardan en la carpeta `output/`.
 | 4 | `(y**2-1)/(x**2-1)` | y(2) = 2 |
 | 5 | `x*y + x` | y(0) = 0 |
 | 6 | `y + sin(x)` | y(0) = 1 (no separable) |
-| 7 | `2*x*y` | y(0) = 3 (caso del grupo) |
+| 7 | `2*x*y` | y(0) = 3 |
 
 ## Estructura del proyecto
 
