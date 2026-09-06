@@ -8,6 +8,7 @@ from typing import Optional
 import sympy as sp
 from sympy.core.expr import Expr
 
+from .latex_fmt import inline
 from .parser import X, Y
 
 
@@ -128,7 +129,9 @@ def classify_separable(F: Expr) -> SeparableResult:
         h=h,
         verification=verification,
         message=(
-            f"La ecuación es separable: F(x, y) = g(x)·h(y) con "
-            f"g(x) = {sp.latex(g)} e h(y) = {sp.latex(h)}."
+            "La ecuación es separable: "
+            f"{inline('F(x, y) = g(x) \\cdot h(y)')} con "
+            f"{inline('g(x) = ' + sp.latex(g))} e "
+            f"{inline('h(y) = ' + sp.latex(h))}."
         ),
     )

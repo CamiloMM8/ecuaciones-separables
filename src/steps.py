@@ -8,6 +8,7 @@ from typing import Optional
 
 import sympy as sp
 
+from .latex_fmt import inline, labeled
 from .parser import ParsedInput, ValidationResult, validate_input
 from .plotting import plot_solution
 from .separable import SeparableResult, classify_separable
@@ -66,9 +67,9 @@ def run_analysis(
     sep = classify_separable(F)
     result.separable = sep
     sections["Simplificación y factorización"] = [
-        rf"F(x, y) original: \({_latex(F)}\)",
-        rf"F simplificada: \({_latex(sep.F_simplified)}\)",
-        rf"F factorizada: \({_latex(sep.F_factored)}\)",
+        labeled("F(x, y) original:", _latex(F)),
+        labeled("F simplificada:", _latex(sep.F_simplified)),
+        labeled("F factorizada:", _latex(sep.F_factored)),
     ]
 
     sections["Clasificación"] = [sep.message]
@@ -80,9 +81,9 @@ def run_analysis(
 
     assert sep.g is not None and sep.h is not None
     sections["Clasificación"].extend([
-        rf"g(x) = {_latex(sep.g)}",
-        rf"h(y) = {_latex(sep.h)}",
-        rf"Verificación: g(x)·h(y) - F(x,y) = {_latex(sep.verification)}",
+        labeled("g(x) =", _latex(sep.g)),
+        labeled("h(y) =", _latex(sep.h)),
+        labeled("Verificación: g(x)·h(y) - F(x,y) =", _latex(sep.verification)),
     ])
 
     # Resolución
@@ -93,7 +94,9 @@ def run_analysis(
         cs_lines = []
         for cs in solver.constant_solutions:
             status = "✓" if cs.verified else "✗"
-            cs_lines.append(f"{status} y = {_latex(cs.value)}: {cs.check_message}")
+            cs_lines.append(
+                f"{status} {labeled('y =', _latex(cs.value))}: {cs.check_message}"
+            )
         sections["Soluciones constantes"] = cs_lines
     else:
         sections["Soluciones constantes"] = ["h(y) = 0 no produce soluciones constantes adicionales."]
@@ -126,8 +129,14 @@ def run_analysis(
     verification = verify_solution(F, solver.particular_solution, parsed.x0, parsed.y0)
     result.verification = verification
     sections["Verificación"] = [
-        rf"Comprobación EDO: \(\frac{{dy}}{{dx}} - F(x,y) = {_latex(verification.derivative_check)}\)",
-        rf"Comprobación CI: \(y({parsed.x0}) - {parsed.y0} = {_latex(verification.ic_check)}\)",
+        labeled(
+            r"Comprobación EDO: $\dfrac{dy}{dx} - F(x,y) =$",
+            _latex(verification.derivative_check),
+        ),
+        labeled(
+            f"Comprobación CI: $y({parsed.x0}) - {parsed.y0} =$",
+            _latex(verification.ic_check),
+        ),
         verification.message,
     ]
 

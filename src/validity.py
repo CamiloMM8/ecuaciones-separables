@@ -8,6 +8,7 @@ import numpy as np
 import sympy as sp
 from sympy.core.expr import Expr
 
+from .latex_fmt import inline, labeled
 from .parser import X, Y
 
 
@@ -109,19 +110,25 @@ def analyze_validity(
     restrictions: list[str] = []
 
     for denom in _collect_denominator_singularities(F):
-        restrictions.append(f"F(x,y): denominador ≠ 0 → {sp.latex(denom)} ≠ 0")
+        restrictions.append(
+            labeled("F(x,y): denominador ≠ 0 →", sp.latex(denom) + r" \neq 0")
+        )
 
     for denom in _collect_denominator_singularities(solution):
         if X in denom.free_symbols or not denom.free_symbols:
             restrictions.append(
-                f"Solución: denominador ≠ 0 → {sp.latex(denom)} ≠ 0"
+                labeled("Solución: denominador ≠ 0 →", sp.latex(denom) + r" \neq 0")
             )
 
     for expr in sp.preorder_traversal(solution):
         if isinstance(expr, sp.log):
-            restrictions.append(f"log requiere argumento > 0: {sp.latex(expr.args[0])} > 0")
+            restrictions.append(
+                labeled("log requiere argumento > 0:", sp.latex(expr.args[0]) + r" > 0")
+            )
         if expr.is_Pow and expr.exp == sp.S.Half:
-            restrictions.append(f"√ requiere argumento ≥ 0: {sp.latex(expr.base)} ≥ 0")
+            restrictions.append(
+                labeled("√ requiere argumento ≥ 0:", sp.latex(expr.base) + r" \geq 0")
+            )
 
     search = (min(a, x0) - abs(b - a), max(b, x0) + abs(b - a))
     singularities = _numeric_singularities(F, x0, search)

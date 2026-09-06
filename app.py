@@ -120,6 +120,5 @@ else:
         "y pulse **Analizar ecuación**."
     )
 
-    st.subheader("Casos obligatorios del PDF")
-    for case in CASOS_PRUEBA:
-        st.markdown(f"- **{case.name}:** `{case.description}`")
+    with st.bottom:
+        st.caption("Aplicación académica desarrollada para el curso de Ecuaciones diferenciales de la Universidad del Tolima")

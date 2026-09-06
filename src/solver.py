@@ -8,6 +8,7 @@ from typing import Optional
 import sympy as sp
 from sympy.core.expr import Expr
 
+from .latex_fmt import bold_labeled, inline, labeled
 from .parser import X, Y
 
 
@@ -53,11 +54,15 @@ def _find_constant_solutions(F: Expr, h: Expr) -> list[ConstantSolution]:
         rhs = sp.simplify(F.subs(Y, cand))
         verified = sp.simplify(lhs - rhs) == 0
         if verified:
-            msg = f"y = {sp.latex(cand)} satisface dy/dx = 0 = F(x, {sp.latex(cand)})."
+            msg = (
+                f"{labeled('y =', sp.latex(cand))} satisface "
+                f"{inline('dy/dx = 0 = F(x, ' + sp.latex(cand) + ')')}."
+            )
         else:
             msg = (
-                f"y = {sp.latex(cand)} proviene de h(y)=0, pero no satisface "
-                f"la ecuación original (0 ≠ F(x, {sp.latex(cand)}))."
+                f"{labeled('y =', sp.latex(cand))} proviene de h(y)=0, pero no satisface "
+                f"la ecuación original "
+                f"{inline('0 \\neq F(x, ' + sp.latex(cand) + ')')}."
             )
         results.append(ConstantSolution(value=cand, verified=verified, check_message=msg))
 
@@ -115,15 +120,21 @@ def solve_separable(
         steps.append("**Soluciones constantes** (de h(y) = 0):")
         for cs in result.constant_solutions:
             status = "válida" if cs.verified else "descartada"
-            steps.append(f"- y = {sp.latex(cs.value)} ({status}): {cs.check_message}")
+            steps.append(
+                f"- {labeled('y =', sp.latex(cs.value))} ({status}): {cs.check_message}"
+            )
 
     # Separación
     inv_h = sp.simplify(1 / h)
     result.separation_lhs = inv_h
     result.separation_rhs = g
     steps.append(
-        r"**Separación de variables:** \(\frac{1}{h(y)}\,dy = g(x)\,dx "
-        rf"\Rightarrow \frac{{1}}{{{sp.latex(h)}}}\,dy = {sp.latex(g)}\,dx\)"
+        "**Separación de variables:** "
+        + inline(r"\frac{1}{h(y)}\,dy = g(x)\,dx")
+        + " "
+        + inline(
+            rf"\Rightarrow \frac{{1}}{{{sp.latex(h)}}}\,dy = {sp.latex(g)}\,dx"
+        )
     )
 
     # Integrales
@@ -132,16 +143,21 @@ def solve_separable(
     result.integral_lhs = int_lhs
     result.integral_rhs = int_rhs
     steps.append(
-        r"**Integración:** \(\int \frac{1}{h(y)}\,dy = \int g(x)\,dx + C\)"
+        "**Integración:** "
+        + inline(r"\int \frac{1}{h(y)}\,dy = \int g(x)\,dx + C")
     )
     steps.append(
-        rf"\(\int {sp.latex(inv_h)}\,dy = \int {sp.latex(g)}\,dx + C "
-        rf"\Rightarrow {sp.latex(int_lhs)} = {sp.latex(int_rhs)} + C\)"
+        inline(
+            rf"\int {sp.latex(inv_h)}\,dy = \int {sp.latex(g)}\,dx + C "
+            rf"\Rightarrow {sp.latex(int_lhs)} = {sp.latex(int_rhs)} + C"
+        )
     )
 
     implicit = sp.Eq(int_lhs, int_rhs + C)
     result.implicit_general = implicit
-    steps.append(rf"**Solución general (implícita):** \({sp.latex(implicit)}\)")
+    steps.append(
+        bold_labeled("Solución general (implícita):", sp.latex(implicit))
+    )
 
     # Forma explícita
     try:
@@ -159,7 +175,7 @@ def solve_separable(
     if explicit_branches:
         steps.append("**Solución general (explícita):**")
         for i, br in enumerate(explicit_branches, 1):
-            steps.append(rf"- Rama {i}: \(y = {sp.latex(sp.simplify(br))}\)")
+            steps.append(f"- Rama {i}: {labeled('y =', sp.latex(sp.simplify(br)))}")
 
     # Solución particular
     branches = explicit_branches if explicit_branches else []
@@ -195,10 +211,13 @@ def solve_separable(
     if particular is not None:
         if c_val is not None:
             steps.append(
-                rf"Aplicando \(y({x0}) = {y0}\): \(C = {sp.latex(sp.simplify(c_val))}\)"
+                f"Aplicando {inline(f'y({x0}) = {y0}')}: "
+                f"{labeled('C =', sp.latex(sp.simplify(c_val)))}"
             )
         if branch_idx is not None and branch_idx >= 0:
             steps.append(rf"Rama seleccionada: {branch_idx + 1} (satisface la condición inicial).")
-        steps.append(rf"**Solución particular:** \(y = {sp.latex(sp.simplify(particular))}\)")
+        steps.append(
+            bold_labeled("Solución particular:", f"y = {sp.latex(sp.simplify(particular))}")
+        )
 
     return result
