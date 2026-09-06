@@ -11,7 +11,6 @@ Desarrollado para la asignatura de Ecuaciones Diferenciales — Ingeniería de S
 ## Instalación
 
 ```powershell
-cd C:\Users\p.desarrollo2\Documents\Python\ecuaciones-separables
 python -m pip install -r requirements.txt
 ```
 
