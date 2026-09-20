@@ -8,6 +8,7 @@ from typing import Optional
 import sympy as sp
 from sympy.core.expr import Expr
 
+from .explicit_derivation import build_explicit_and_ic_steps
 from .latex_fmt import bold_labeled, inline, labeled
 from .parser import X, Y
 
@@ -172,10 +173,6 @@ def solve_separable(
             explicit_branches = []
 
     result.explicit_general_branches = explicit_branches
-    if explicit_branches:
-        steps.append("**Solución general (explícita):**")
-        for i, br in enumerate(explicit_branches, 1):
-            steps.append(f"- Rama {i}: {labeled('y =', sp.latex(sp.simplify(br)))}")
 
     # Solución particular
     branches = explicit_branches if explicit_branches else []
@@ -208,16 +205,17 @@ def solve_separable(
     result.constant_value = c_val
     result.steps = steps
 
-    if particular is not None:
-        if c_val is not None:
-            steps.append(
-                f"Aplicando {inline(f'y({x0}) = {y0}')}: "
-                f"{labeled('C =', sp.latex(sp.simplify(c_val)))}"
-            )
-        if branch_idx is not None and branch_idx >= 0:
-            steps.append(rf"Rama seleccionada: {branch_idx + 1} (satisface la condición inicial).")
+    if particular is not None and explicit_branches and branch_idx is not None:
+        detailed = build_explicit_and_ic_steps(
+            implicit, explicit_branches, branch_idx, x0, y0
+        )
+        steps.extend(detailed)
+    elif particular is not None:
         steps.append(
-            bold_labeled("Solución particular:", f"y = {sp.latex(sp.simplify(particular))}")
+            bold_labeled(
+                "Solución particular:",
+                f"y = {sp.latex(sp.simplify(particular))}",
+            )
         )
 
     return result
